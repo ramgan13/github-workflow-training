@@ -19,11 +19,11 @@ jobs:
           echo "Do you want to proceed with the second job? (yes/no)"
           read answer
           echo "::set-output name=confirm::${answer}"
-
+          
   job2:
     needs: job1
     runs-on: ubuntu-latest
-    if: steps.confirm.outputs.confirm == 'yes'
+    if: ${{ needs.job1.outputs.confirm == 'yes' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
