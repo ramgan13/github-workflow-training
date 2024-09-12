@@ -1,13 +1,12 @@
 name: Second Job
 
 on:
-  workflow_dispatch:
-  issues:
-    types: [labeled]
+  issue_comment:
+    types: [created]
 
 jobs:
   job2:
-    if: github.event.label.name == 'approved'
+    if: ${{ github.event.comment.body == 'yes' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
