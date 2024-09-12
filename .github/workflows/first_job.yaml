@@ -13,6 +13,8 @@ jobs:
         run: echo "First job is running..."
 
       - name: Create approval issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ISSUE_NUMBER=$(gh issue create --title "Approval needed for second job" --body "Please approve the execution of the second job by labeling this issue with 'approved'." --label "approval")
           echo "issue_number=$ISSUE_NUMBER" >> $GITHUB_ENV
