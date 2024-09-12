@@ -1,6 +1,6 @@
 name: First Job
 
-on: workflow_dispatch
+on: [push]
 
 jobs:
   job1:
@@ -12,9 +12,13 @@ jobs:
       - name: Run first job
         run: echo "First job is running..."
 
+      - name: Set up GitHub CLI
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
       - name: Create approval issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ISSUE_NUMBER=$(gh issue create --title "Approval needed for second job" --body "Please approve the execution of the second job by labeling this issue with 'approved'." --label "approval")
+          ISSUE_NUMBER=$(gh api -X POST /repos/${{ github.repository }}/issues -f title='Approval needed for second job' -f body='Please approve the execution of the second job by commenting "yes" or "no" on this issue.' --jq '.number')
           echo "issue_number=$ISSUE_NUMBER" >> $GITHUB_ENV
