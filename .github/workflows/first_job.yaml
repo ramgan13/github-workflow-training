@@ -1,0 +1,18 @@
+name: First Job
+
+on: workflow_dispatch
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run first job
+        run: echo "First job is running..."
+
+      - name: Create approval issue
+        run: |
+          ISSUE_NUMBER=$(gh issue create --title "Approval needed for second job" --body "Please approve the execution of the second job by labeling this issue with 'approved'." --label "approval" --json number --jq .number)
+          echo "issue_number=$ISSUE_NUMBER" >> $GITHUB_ENV
