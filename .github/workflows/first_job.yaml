@@ -14,5 +14,5 @@ jobs:
 
       - name: Create approval issue
         run: |
-          ISSUE_NUMBER=$(gh issue create --title "Approval needed for second job" --body "Please approve the execution of the second job by labeling this issue with 'approved'." --label "approval" --json number --jq .number)
+          ISSUE_NUMBER=$(gh issue create --title "Approval needed for second job" --body "Please approve the execution of the second job by labeling this issue with 'approved'." --label "approval")
           echo "issue_number=$ISSUE_NUMBER" >> $GITHUB_ENV
