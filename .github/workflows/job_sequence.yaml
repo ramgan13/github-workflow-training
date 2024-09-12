@@ -1,0 +1,32 @@
+name: Sequential Jobs with Confirmation
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run first job
+        run: echo "First job is running..."
+
+      - name: Wait for user confirmation
+        id: confirm
+        run: |
+          echo "Do you want to proceed with the second job? (yes/no)"
+          read answer
+          echo "::set-output name=confirm::${answer}"
+
+  job2:
+    needs: job1
+    runs-on: ubuntu-latest
+    if: steps.confirm.outputs.confirm == 'yes'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run second job
+        run: echo "Second job is running..."
