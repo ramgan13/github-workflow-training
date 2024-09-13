@@ -24,7 +24,7 @@ on:
         description: 'Select the service'
         required: true
         type: choice
-        options: []  # This will be dynamically generated
+        options:  # This will be dynamically generated
 
 jobs:
   generate-service-options:
