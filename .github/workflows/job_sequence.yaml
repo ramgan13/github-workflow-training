@@ -2,6 +2,15 @@ name: Sequential Jobs with Confirmation
 
 on:
   workflow_dispatch:
+    inputs:
+      proceed:
+        description: 'Do you want to proceed with the second job?'
+        required: true
+        default: 'no'
+        type: choice
+        options:
+          - 'yes'
+          - 'no'
 
 jobs:
   first-job:
@@ -13,17 +22,10 @@ jobs:
       - name: First job step
         run: echo "This is the first job."
 
-      - name: Request user confirmation
-        id: confirm
-        run: |
-          echo "Do you want to proceed with the second job? (yes/no)"
-          read answer
-          echo "::set-output name=confirm::${answer}"
-
   second-job:
     needs: first-job
     runs-on: ubuntu-latest
-    if: needs.first-job.outputs.confirm == 'yes'
+    if: github.event.inputs.proceed == 'yes'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
