@@ -64,3 +64,10 @@ jobs:
     
       - name: Terraform Apply
         run: echo "terraform apply tfplan"
+
+      - name: Close Issue
+        if: ${{ always() }}
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          gh issue close 1 --comment "Terraform apply completed successfully."
