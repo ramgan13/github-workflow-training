@@ -6,10 +6,12 @@ on:
 jobs:
   terraform-plan:
     runs-on: ubuntu-latest
+    outputs:
+      issue_number: ${{ steps.create-issue.outputs.issue_number }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        
+
       - name: Terraform Init
         run: echo "terraform init"
 
@@ -17,12 +19,15 @@ jobs:
         run: echo "terraform plan -out=tfplan"
 
       - name: Create Issue for User Input
+        id: create-issue
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "## User Input Required" > issue.md
           echo "Please review the Terraform plan and comment 'yes' to proceed or 'no' to abort." >> issue.md
-          gh issue create --title "User Input Required" --body-file issue.md
+          echo "terraform plan -var-file var\px.ttvars" >> issue.md
+          issue_number=$(gh issue create --title "User Input Required" --body-file issue.md --json number --jq '.number')
+          echo "::set-output name=issue_number::$issue_number"
 
   wait-for-input:
     needs: terraform-plan
@@ -32,14 +37,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        
+
       - name: Wait for User Input
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
         id: wait-for-input
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ needs.terraform-plan.outputs.issue_number }}
         run: |
           while true; do
-            comments=$(gh issue view 1 --json comments --jq '.comments[].body')
+            comments=$(gh issue view $ISSUE_NUMBER --json comments --jq '.comments[].body')
             if echo "$comments" | grep -q "yes"; then
               echo "User approved. Proceeding to apply."
               echo "::set-output name=proceed::true"
@@ -50,7 +56,7 @@ jobs:
               break
             fi
             echo "Waiting for user input..."
-            sleep 30
+            sleep 20
           done
 
   terraform-apply:
@@ -58,16 +64,15 @@ jobs:
     if: ${{ needs.wait-for-input.outputs.proceed == 'true' }}
     runs-on: ubuntu-latest
     steps:
-    
       - name: Checkout repository
         uses: actions/checkout@v2
-    
+
       - name: Terraform Apply
         run: echo "terraform apply tfplan"
 
       - name: Close Issue
-        if: ${{ always() }}
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ needs.terraform-plan.outputs.issue_number }}
         run: |
-          gh issue close 1 --comment "Terraform apply completed successfully."
+          gh issue close $ISSUE_NUMBER --comment "Terraform apply completed successfully."
