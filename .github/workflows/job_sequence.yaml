@@ -27,20 +27,17 @@ jobs:
           echo "## User Input Required" > issue.md
           echo "Please review the Terraform plan and comment 'yes' to proceed or 'no' to abort." >> issue.md
           echo "terraform plan -var-file var\px.ttvars" >> issue.md
-          issue_number=$(gh issue create --title "$ISSUE_TITLE" --body-file issue.md | awk -F'/' '{print $NF}')
-          #gh issue list --limit 1 --json number,title --jq '.[] | select(.title=="${ISSUE_TITLE}") | .number'
-          #issue_number=$(gh issue list --limit 1 --json number,title --jq '.[] | select(.title=="${ISSUE_TITLE}") | .number')
-          #echo "::set-output name=issue_number::$issue_number"
-          #gh issue list --limit 1 --json number,title          
-          #gh issue list --limit 1 --json number,title --jq '.[] 
+          issue=$(gh issue create --title "$ISSUE_TITLE" --body-file issue.md)
+          issue_number=$(echo $issue | awk -F'/' '{print $NF}')
           echo "issue_number=$issue_number" >> $GITHUB_OUTPUT
-          echo "$issue_number"
-
+          echo $issue
+          
   wait-for-input:
     needs: terraform-plan
     runs-on: ubuntu-latest
     outputs:
       proceed: ${{ steps.wait-for-input.outputs.proceed }}
+      issue_number: ${{ needs.terraform-plan.outputs.issue_number }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -55,11 +52,11 @@ jobs:
             comments=$(gh issue view $ISSUE_NUMBER --json comments --jq '.comments[].body')
             if echo "$comments" | grep -q "yes"; then
               echo "User approved. Proceeding to apply."
-              echo "::set-output name=proceed::true"
+              echo "proceed=true" >> $GITHUB_OUTPUT
               break
             elif echo "$comments" | grep -q "no"; then
               echo "User denied. Aborting."
-              echo "::set-output name=proceed::false"
+              echo "proceed=false" >> $GITHUB_OUTPUT              
               break
             fi
             echo "Waiting for user input..."
@@ -80,6 +77,6 @@ jobs:
       - name: Close Issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ needs.terraform-plan.outputs.issue_number }}
+          ISSUE_NUMBER: ${{ needs.wait-for-input.outputs.issue_number }}
         run: |
-          gh issue close $issue_number --comment "Terraform apply completed successfully."
+          gh issue close $ISSUE_NUMBER --comment "Terraform apply completed successfully."
