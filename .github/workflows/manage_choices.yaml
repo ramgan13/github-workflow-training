@@ -1,0 +1,24 @@
+name: Update Workflow Choices
+
+on:
+  push:
+    paths:
+      - 'services/service_names.csv'
+
+jobs:
+  update-choices:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Update workflow file
+        run: python update_workflow.py
