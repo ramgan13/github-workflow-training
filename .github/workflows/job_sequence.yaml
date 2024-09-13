@@ -22,11 +22,12 @@ jobs:
         id: create-issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_TITLE: "Workflow Run #${{ github.run_number }}: ${{ github.workflow }}"
         run: |
           echo "## User Input Required" > issue.md
           echo "Please review the Terraform plan and comment 'yes' to proceed or 'no' to abort." >> issue.md
           echo "terraform plan -var-file var\px.ttvars" >> issue.md
-          issue_number=$(gh issue create --title "User Input Required" --body-file issue.md --json number --jq '.number')
+          issue_number=$(gh issue create --title "${ISSUE_TITLE}" --body-file issue.md --json number --jq '.number')
           echo "::set-output name=issue_number::$issue_number"
 
   wait-for-input:
