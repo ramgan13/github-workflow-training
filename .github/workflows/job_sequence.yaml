@@ -82,4 +82,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ needs.terraform-plan.outputs.issue_number }}
         run: |
-          gh issue close $ISSUE_NUMBER --comment "Terraform apply completed successfully."
+          gh issue close $issue_number --comment "Terraform apply completed successfully."
