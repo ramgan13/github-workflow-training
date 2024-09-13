@@ -7,6 +7,9 @@ jobs:
   terraform-plan:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
       - name: Terraform Init
         run: echo "terraform init"
 
@@ -27,6 +30,9 @@ jobs:
     outputs:
       proceed: ${{ steps.wait-for-input.outputs.proceed }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
       - name: Wait for User Input
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
@@ -52,6 +58,9 @@ jobs:
     if: ${{ needs.wait-for-input.outputs.proceed == 'true' }}
     runs-on: ubuntu-latest
     steps:
-
+    
+      - name: Checkout repository
+        uses: actions/checkout@v2
+    
       - name: Terraform Apply
         run: echo "terraform apply tfplan"
