@@ -42,7 +42,7 @@ jobs:
 
   terraform-apply:
     needs: wait-for-input
-    if: env.proceed == 'true'
+    if: ${{ env.proceed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Terraform Apply
