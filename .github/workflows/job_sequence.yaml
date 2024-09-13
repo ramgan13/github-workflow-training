@@ -14,6 +14,8 @@ jobs:
         run: echo "terraform plan -out=tfplan"
 
       - name: Create Issue for User Input
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
         run: |
           echo "## User Input Required" > issue.md
           echo "Please review the Terraform plan and comment 'yes' to proceed or 'no' to abort." >> issue.md
@@ -26,6 +28,8 @@ jobs:
       proceed: ${{ steps.wait-for-input.outputs.proceed }}
     steps:
       - name: Wait for User Input
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
         id: wait-for-input
         run: |
           while true; do
