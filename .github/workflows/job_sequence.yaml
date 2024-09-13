@@ -28,8 +28,11 @@ jobs:
           echo "Please review the Terraform plan and comment 'yes' to proceed or 'no' to abort." >> issue.md
           echo "terraform plan -var-file var\px.ttvars" >> issue.md
           gh issue create --title "$ISSUE_TITLE" --body-file issue.md
+          gh issue list --limit 1 --json number,title --jq '.[] | select(.title=="${ISSUE_TITLE}") | .number'
           issue_number=$(gh issue list --limit 1 --json number,title --jq '.[] | select(.title=="${ISSUE_TITLE}") | .number')
           #echo "::set-output name=issue_number::$issue_number"
+          gh issue list --limit 1 --json number,title          
+          gh issue list --limit 1 --json number,title --jq '.[] 
           echo "issue_number=$issue_number" >> $GITHUB_OUTPUT
           echo "$issue_number"
 
