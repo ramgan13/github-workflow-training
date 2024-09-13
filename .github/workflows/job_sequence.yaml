@@ -27,7 +27,8 @@ jobs:
           echo "## User Input Required" > issue.md
           echo "Please review the Terraform plan and comment 'yes' to proceed or 'no' to abort." >> issue.md
           echo "terraform plan -var-file var\px.ttvars" >> issue.md
-          issue_number=$(gh issue create --title "${ISSUE_TITLE}" --body-file issue.md --json number --jq '.number')
+          gh issue create --title "$ISSUE_TITLE" --body-file issue.md
+          issue_number=$(gh issue list --limit 1 --json number,title --jq '.[] | select(.title=="${ISSUE_TITLE}") | .number')
           echo "::set-output name=issue_number::$issue_number"
 
   wait-for-input:
