@@ -10,14 +10,14 @@ with open('services/service_names.csv', newline='') as csvfile:
         services.append(row[0])
 
 # Load the existing workflow file
-with open('.github/workflows/choices.yml', 'r') as file:
+with open('.github/workflows/choices.yaml', 'r') as file:
     workflow = yaml.safe_load(file)
 
 # Update the service choices
 workflow['on']['workflow_dispatch']['inputs']['service']['options'] = services
 
 # Save the updated workflow file
-with open('.github/workflows/service_action.yml', 'w') as file:
+with open('.github/workflows/choices.yaml', 'w') as file:
     yaml.safe_dump(workflow, file)
 
 print("Workflow file updated with service choices.")
