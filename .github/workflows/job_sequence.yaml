@@ -1,34 +1,49 @@
-name: Sequential Jobs with Confirmation
+name: Terraform Workflow
 
 on:
   workflow_dispatch:
-    inputs:
-      proceed:
-        description: 'Do you want to proceed with the second job?'
-        required: true
-        default: 'no'
-        type: choice
-        options:
-          - 'yes'
-          - 'no'
 
 jobs:
-  first-job:
+  terraform-plan:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Terraform Init
+        run: echo "terraform init"
 
-      - name: First job step
-        run: echo "This is the first job."
+      - name: Terraform Plan
+        run: echo "terraform plan -out=tfplan"
 
-  second-job:
-    needs: first-job
+      - name: Create Issue for User Input
+        run: |
+          echo "## User Input Required" > issue.md
+          echo "Please review the Terraform plan and comment 'yes' to proceed or 'no' to abort." >> issue.md
+          gh issue create --title "User Input Required" --body-file issue.md
+
+  wait-for-input:
+    needs: terraform-plan
     runs-on: ubuntu-latest
-    if: github.event.inputs.proceed == 'yes'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Wait for User Input
+        run: |
+          while true; do
+            comments=$(gh issue view 1 --json comments --jq '.comments[].body')
+            if echo "$comments" | grep -q "yes"; then
+              echo "User approved. Proceeding to apply."
+              echo "proceed=true" >> $GITHUB_ENV
+              break
+            elif echo "$comments" | grep -q "no"; then
+              echo "User denied. Aborting."
+              echo "proceed=false" >> $GITHUB_ENV
+              break
+            fi
+            echo "Waiting for user input..."
+            sleep 30
+          done
 
-      - name: Second job step
-        run: echo "This is the second job."
+  terraform-apply:
+    needs: wait-for-input
+    if: env.proceed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Terraform Apply
+        run: echo "terraform apply tfplan"
