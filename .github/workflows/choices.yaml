@@ -8,7 +8,6 @@ on:
         required: true
         type: choice
         options:
-          - ''
           - px
           - ct
           - prod
@@ -17,14 +16,13 @@ on:
         required: true
         type: choice
         options:
-          - ''
           - enable
           - disable
       service:
         description: 'Select the service'
-        required: true
         type: choice
-        options:  # This will be dynamically generated
+        default: 'default-px'
+        options:  ['service-1']
 
 jobs:
   generate-service-options:
@@ -39,17 +37,5 @@ jobs:
         id: generate
         run: |
           services=$(cut -d, -f1 services/service_names.csv | tail -n +2 | jq -R -s -c 'split("\n")[:-1]')
-          echo "::set-output name=services::$services"
+          echo "$services"
 
-  run-action:
-    needs: generate-service-options
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Perform action
-        run: |
-          echo "Environment: ${{ github.event.inputs.environment }}"
-          echo "Action: ${{ github.event.inputs.action }}"
-          echo "Service: ${{ github.event.inputs.service }}"
