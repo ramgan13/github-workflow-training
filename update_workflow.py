@@ -29,12 +29,16 @@ def preserve_strings(data):
         return f'"{data}"'
     return data
 
+print(workflow)
+print(type(workflow))
+
 workflow = preserve_strings(workflow)
+
+print(workflow)
+print(type(workflow))
 
 
 #pprint(workflow)
-print(workflow)
-print(type(workflow))
 
 # Update the service choices
 #workflow['on']['workflow_dispatch']['inputs']['service']['options'] = services
