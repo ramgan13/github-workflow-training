@@ -1,0 +1,21 @@
+name: Process JSON and Headers
+
+on:
+  repository_dispatch:
+    #types: [custom_event]
+
+jobs:
+  process_json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Extract JSON data
+        id: extract_json
+        run: |
+          echo '${{ github.event.client_payload }}' > payload.json
+          cat payload.json | jq '.key' > extracted_value.txt
+
+      - name: Print extracted value
+        run: cat extracted_value.txt
