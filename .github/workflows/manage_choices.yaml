@@ -1,9 +1,11 @@
 name: Update Workflow Choices
 
 on:
-  push:
-    paths:
-      - 'services/service_names.csv'
+  workflow_dispatch:
+
+#  push:
+#    paths:
+#      - 'services/service_names.csv'
 
 jobs:
   update-choices:
