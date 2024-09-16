@@ -3,21 +3,6 @@ name: Service Action Workflow
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'Select the environment'
-        required: true
-        type: choice
-        options:
-          - px
-          - ct
-          - prod
-      action:
-        description: 'Select the action'
-        required: true
-        type: choice
-        options:
-          - enable
-          - disable
       service:
         description: 'Select the service'
         type: choice
@@ -27,15 +12,8 @@ on:
 jobs:
   generate-service-options:
     runs-on: ubuntu-latest
-    outputs:
-      services: ${{ steps.generate.outputs.services }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Generate service options
-        id: generate
-        run: |
-          services=$(cut -d, -f1 services/service_names.csv | tail -n +2 | jq -R -s -c 'split("\n")[:-1]')
-          echo "$services"
 
