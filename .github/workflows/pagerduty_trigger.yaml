@@ -15,7 +15,7 @@ jobs:
         id: extract_json
         run: |
           echo '${{ github.event.client_payload }}' > payload.json
-          cat payload.json | jq '.key' > extracted_value.txt
+          cat payload.json | jq '.example_key' > extracted_value.txt
 
       - name: Print extracted value
         run: cat extracted_value.txt
