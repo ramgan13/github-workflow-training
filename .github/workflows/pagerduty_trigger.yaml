@@ -14,7 +14,7 @@ jobs:
       - name: Extract JSON data
         id: extract_json
         run: |
-          echo "${{ toJson(github.event.client_payload) }}" | jq '.example_key' > extracted_value.txt
+          echo "${{ toJson(github.event.client_payload) }}" | jq '.' > payload.jsont
           #cat payload.json | jq '.example_key' > extracted_value.txt
 
       - name: Print extracted value
